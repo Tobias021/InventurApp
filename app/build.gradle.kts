@@ -6,11 +6,11 @@ plugins {
 
 android {
     namespace = "cz.tlaskal.inventurapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "cz.tlaskal.inventurapp"
-        minSdk = 24
+        minSdk = 31
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -36,6 +36,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
@@ -56,4 +57,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.play.services.code.scanner)
 }
