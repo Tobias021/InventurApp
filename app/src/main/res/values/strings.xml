@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">InventurApp</string>
+    <string name="barcodeTextFieldLabel">Kód objektu</string>
 </resources>
