@@ -26,4 +26,13 @@ interface ItemDao {
     @Query("SELECT * FROM items")
     fun getAllItems(): Flow<List<Item>>
 
+    @Query("SELECT * FROM items WHERE vyrazeno = FALSE")
+    fun getActiveItems(): Flow<List<Item>>
+
+    @Query("SELECT * FROM items WHERE vyrazeno = TRUE")
+    fun getInactiveItems(): Flow<List<Item>>
+
+    @Query("DELETE FROM items ")
+    fun nukeItems()
+
 }

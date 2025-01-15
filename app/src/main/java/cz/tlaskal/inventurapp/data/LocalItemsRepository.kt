@@ -7,6 +7,14 @@ class LocalItemsRepository(private val itemDao: ItemDao) : ItemsRepository {
         return itemDao.getAllItems()
     }
 
+    override fun getActiveItems(): Flow<List<Item>> {
+        return itemDao.getActiveItems()
+    }
+
+    override fun getInactiveItems(): Flow<List<Item>> {
+        return itemDao.getInactiveItems()
+    }
+
     override fun getItemStream(id: String): Flow<Item?> {
         return itemDao.getItem(id)
     }
@@ -21,5 +29,9 @@ class LocalItemsRepository(private val itemDao: ItemDao) : ItemsRepository {
 
     override suspend fun updateItem(item: Item) {
         return itemDao.update(item)
+    }
+
+    override fun nukeItems(){
+        return itemDao.nukeItems()
     }
 }

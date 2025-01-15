@@ -6,6 +6,10 @@ interface ItemsRepository {
 
     fun getAllItemsStream(): Flow<List<Item>>
 
+    fun getActiveItems(): Flow<List<Item>>
+
+    fun getInactiveItems(): Flow<List<Item>>
+
     fun getItemStream(id: String): Flow<Item?>
 
     suspend fun insertItem(item: Item)
@@ -14,4 +18,6 @@ interface ItemsRepository {
 
     suspend fun updateItem(item: Item)
 
+    //pro účely data modkupů
+    fun nukeItems()
 }
