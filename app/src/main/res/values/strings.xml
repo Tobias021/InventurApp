@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">InventurApp</string>
     <string name="barcodeTextFieldLabel">Kód objektu</string>
+    <string name="back">Zpátky</string>
+    <string name="top_bar_title">InventurApp</string>
+    <string name="home_title">Přehled položek</string>
 </resources>
