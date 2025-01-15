@@ -1,4 +1,4 @@
-package cz.tlaskal.inventurapp.barcodehandler
+package cz.tlaskal.inventurapp.util
 
 import android.content.Context
 import com.google.android.gms.tasks.OnSuccessListener
