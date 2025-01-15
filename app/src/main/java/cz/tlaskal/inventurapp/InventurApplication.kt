@@ -1,7 +1,14 @@
 package cz.tlaskal.inventurapp
 
 import android.app.Application
-import dagger.hilt.android.HiltAndroidApp
+import cz.tlaskal.inventurapp.data.AppContainer
+import cz.tlaskal.inventurapp.data.AppDataContainer
 
-@HiltAndroidApp
-class InventurApplication : Application() {}
+class InventurApplication : Application() {
+    lateinit var container: AppContainer
+
+    override fun onCreate() {
+        super.onCreate()
+        container = AppDataContainer(this)
+    }
+}
