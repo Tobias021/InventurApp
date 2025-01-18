@@ -1,6 +1,7 @@
 package cz.tlaskal.inventurapp.data
 
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
 class LocalItemsRepository(private val itemDao: ItemDao) : ItemsRepository {
     override fun getAllItemsStream(): Flow<List<Item>> {
@@ -34,4 +35,16 @@ class LocalItemsRepository(private val itemDao: ItemDao) : ItemsRepository {
     override fun nukeItems(){
         return itemDao.nukeItems()
     }
+
+    companion object {
+            suspend fun LocalItemsRepository.seedDatabase() {
+                insertItem(Item("1", "Pocitac", "Hezky novy pocitac",Date.UTC(2022,2,11,8,20, 36), false))
+                insertItem(Item("2", "Penal", "Hezky stary penal", Date.UTC(2022,2,11,8,20, 36), false))
+            }
+
+            fun LocalItemsRepository.nukeDatabase() {
+                    nukeItems()
+            }
+    }
+
 }
