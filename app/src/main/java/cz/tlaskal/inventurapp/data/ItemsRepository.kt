@@ -18,6 +18,6 @@ interface ItemsRepository {
 
     suspend fun updateItem(item: Item)
 
-    //pro účely data modkupů
+    //pro účely data mokupů
     fun nukeItems()
 }
