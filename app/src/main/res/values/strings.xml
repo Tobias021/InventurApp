@@ -4,4 +4,8 @@
     <string name="back">Zpátky</string>
     <string name="top_bar_title">InventurApp</string>
     <string name="home_title">Přehled položek</string>
+    <string name="select_items">Vybrat položky</string>
+    <string name="search_items">Vyhledej položku</string>
+    <string name="close">Zavřít</string>
+    <string name="delete_selected">Smazat vybrané</string>
 </resources>

@@ -4,11 +4,11 @@ import androidx.compose.ui.graphics.Color
 
 val Orange80 = Color(0xFFE5B83E)
 val OrangeGrey80 = Color(0xFFC0B59F)
-val Brown80 = Color(0xFF834F33)
+val Brown80 = Color(0xFF362B2B)
 
 val Orange40 = Color(0xFFCE8D14)
 val OrangeGrey40 = Color(0xFF635438)
-val Brown40 = Color(0xFF6A4400)
+val Brown40 = Color(0xFF3D3519)
 
 //val Purple80 = Color(0xFFD0BCFF)
 //val PurpleGrey80 = Color(0xFFCCC2DC)
