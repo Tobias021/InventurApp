@@ -8,4 +8,15 @@
     <string name="search_items">Vyhledej položku</string>
     <string name="close">Zavřít</string>
     <string name="delete_selected">Smazat vybrané</string>
+    <string name="created_at">Vytvořeno:\ </string>
+    <string name="item_deleted">\ položka smazána.</string>
+    <string name="few_items_deleted">\ položky smazány.</string>
+    <string name="many_items_deleted">\ položek smazáno.</string>
+    <string name="no_items_deleted">Žádná položka nebyla vymazána</string>
+    <string name="revert_deleted">Obnovit</string>
+    <string name="yes">Ano</string>
+    <string name="confirm_delete_all_items">Skutečně si přejete vymazat veškeré zaznamenané položky?</string>
+    <string name="no">Ne</string>
+    <string name="delete_all">Vymazat vše</string>
+    <string name="delete_safety_checkbox">"Vím co dělám: "</string>
 </resources>
