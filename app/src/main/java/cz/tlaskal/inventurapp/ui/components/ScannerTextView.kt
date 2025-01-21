@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -25,7 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import cz.tlaskal.inventurapp.R
 
 @Composable
-fun ScannerTextView(viewModel:ScannerTextViewModel = viewModel(), context: Context, label: String? = null){
+fun ScannerTextView(viewModel:ScannerTextViewModel = viewModel(), label: String? = null, context: Context = LocalContext.current){
     val uiState = viewModel.uiState.collectAsState()
     val label = if (label == null) {stringResource(R.string.barcodeTextFieldLabel)} else label
     Row(verticalAlignment = Alignment.CenterVertically) {
