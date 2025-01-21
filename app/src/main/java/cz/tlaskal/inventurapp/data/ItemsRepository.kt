@@ -18,6 +18,7 @@ interface ItemsRepository {
 
     suspend fun updateItem(item: Item)
 
-    //pro účely data mokupů
-    fun nukeItems()
+    suspend fun nukeItems()
+
+    suspend fun getItemsCount(): Int
 }
