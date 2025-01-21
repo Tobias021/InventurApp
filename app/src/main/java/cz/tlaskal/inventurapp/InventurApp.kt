@@ -3,9 +3,14 @@ package cz.tlaskal.inventurapp
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -25,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -42,28 +48,33 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlin.time.Duration
 
 @Composable
-fun InventurApp(navController: NavHostController = rememberNavController()){
+fun InventurApp(navController: NavHostController = rememberNavController()) {
     AppNavHost(navController)
 }
 
-enum class AppBarActionState{
+enum class AppBarActionState {
     DEFAULT,
     SEARCH,
     SELECT,
 }
 
+const val ERROR_VISIBILITY_DURATION: Long = 5000
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar(title: String? = null,
-              showBack: Boolean? = null,
-              barAction: AppBarActionState? = null,
-              onBackClicked: (() -> Unit) = {},
-              onActionSearchClicked: (() -> Unit) = {},
-              onActionSelectClicked: (() -> Unit) = {},
-              onActionCloseSelectClicked: (() -> Unit) = {},
-              onActionDeleteClicked: (() -> Unit) ={}
+fun TopAppBar(
+    title: String? = null,
+    showBack: Boolean? = null,
+    barAction: AppBarActionState? = null,
+    onBackClicked: (() -> Unit) = {},
+    onActionSearchClicked: (() -> Unit) = {},
+    onActionSelectClicked: (() -> Unit) = {},
+    onActionCloseSelectClicked: (() -> Unit) = {},
+    onActionDeleteClicked: (() -> Unit) = {},
+    onActionDeleteHeld: (() -> Unit) = {}
 ) {
     InventurAppTheme {
         CenterAlignedTopAppBar(
@@ -75,7 +86,7 @@ fun TopAppBar(title: String? = null,
                 )
             },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                containerColor =   MaterialTheme.colorScheme.primary,
+                containerColor = MaterialTheme.colorScheme.primary,
                 navigationIconContentColor = MaterialTheme.colorScheme.background,
                 titleContentColor = MaterialTheme.colorScheme.background,
                 actionIconContentColor = MaterialTheme.colorScheme.background
@@ -87,7 +98,7 @@ fun TopAppBar(title: String? = null,
                         enter = expandHorizontally(),
                         exit = shrinkHorizontally()
                     ) {
-                        IconButton(onClick = {onBackClicked}) {
+                        IconButton(onClick = { onBackClicked }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Sharp.ArrowBack,
                                 contentDescription = stringResource(R.string.back),
@@ -97,7 +108,7 @@ fun TopAppBar(title: String? = null,
                     }
             },
             actions = {
-                when(barAction){
+                when (barAction) {
                     AppBarActionState.SEARCH -> {
                         onActionSearchClicked
                     }
@@ -105,15 +116,18 @@ fun TopAppBar(title: String? = null,
                     AppBarActionState.SELECT -> {
                         AppBarSelectAction(
                             onActionCloseSelectClicked,
-                            onActionDeleteClicked
+                            onActionDeleteClicked,
+                            onActionDeleteHeld
                         )
                     }
+
                     AppBarActionState.DEFAULT -> {
                         AppBarDefaultAction(
                             onActionSelectClicked,
                             onActionSearchClicked
                         )
                     }
+
                     null -> {}
                 }
             },
@@ -126,12 +140,16 @@ fun TopAppBar(title: String? = null,
 
 @Preview
 @Composable
-fun TopAppBarPreview(){
+fun TopAppBarPreview() {
     var showVisible = true;
-    Scaffold(topBar = {TopAppBar(showBack = showVisible, barAction = AppBarActionState.DEFAULT)}) {
-        innerPadding ->
+    Scaffold(topBar = {
+        TopAppBar(
+            showBack = showVisible,
+            barAction = AppBarActionState.SELECT
+        )
+    }) { innerPadding ->
         Column(Modifier.padding(innerPadding)) {
-            Button(onClick = {showVisible = !showVisible}, ) {Text("Ukaž!") }
+            Button(onClick = { showVisible = !showVisible }) { Text("Ukaž!") }
         }
     }
 }
@@ -140,7 +158,7 @@ fun TopAppBarPreview(){
 @Composable
 fun AppBarDefaultAction(onActionSelectClicked: (() -> Unit), onActionSearchClicked: (() -> Unit)) {
     Row {
-        IconButton(onClick = onActionSelectClicked ) {
+        IconButton(onClick = onActionSelectClicked) {
             Icon(Icons.Filled.Edit, stringResource(R.string.select_items))
         }
         IconButton(onActionSearchClicked) {
@@ -149,11 +167,25 @@ fun AppBarDefaultAction(onActionSelectClicked: (() -> Unit), onActionSearchClick
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AppBarSelectAction(onActionCloseSelectClicked: (() -> Unit), onActionDeleteClicked: (() -> Unit)){
+fun AppBarSelectAction(
+    onActionCloseSelectClicked: (() -> Unit),
+    onActionDeleteClicked: (() -> Unit),
+    onActionDeleteHeld: () -> Unit
+) {
     Row {
-        IconButton(onClick = onActionDeleteClicked) {
-            Icon(Icons.Filled.Delete, stringResource(R.string.delete_selected))
+        IconButton(onClick = {}) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .combinedClickable(
+                        onClick = onActionDeleteClicked,
+                        onLongClick = onActionDeleteHeld),
+                contentAlignment = Alignment.Center
+            ){
+                Icon(Icons.Filled.Delete, stringResource(R.string.delete_selected))
+            }
         }
         IconButton(onClick = onActionCloseSelectClicked) {
             Icon(Icons.Filled.Close, stringResource(R.string.close))
