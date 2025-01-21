@@ -32,19 +32,11 @@ class LocalItemsRepository(private val itemDao: ItemDao) : ItemsRepository {
         return itemDao.update(item)
     }
 
-    override fun nukeItems(){
+    override suspend fun nukeItems(){
         return itemDao.nukeItems()
     }
 
-    companion object {
-            suspend fun LocalItemsRepository.seedDatabase() {
-                insertItem(Item("1", "Pocitac", "Hezky novy pocitac",Date.UTC(2022,2,11,8,20, 36), false))
-                insertItem(Item("2", "Penal", "Hezky stary penal", Date.UTC(2022,2,11,8,20, 36), false))
-            }
-
-            fun LocalItemsRepository.nukeDatabase() {
-                    nukeItems()
-            }
+    override suspend fun getItemsCount(): Int {
+        return itemDao.getCount()
     }
-
 }
