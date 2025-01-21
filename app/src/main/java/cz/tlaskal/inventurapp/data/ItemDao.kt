@@ -35,4 +35,6 @@ interface ItemDao {
     @Query("DELETE FROM items ")
     fun nukeItems()
 
+    @Query("SELECT count(*) FROM items")
+    fun getCount(): Int
 }
