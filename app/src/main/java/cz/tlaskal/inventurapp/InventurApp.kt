@@ -141,7 +141,7 @@ fun TopAppBar(
 @Preview
 @Composable
 fun TopAppBarPreview() {
-    var showVisible = true;
+    var showVisible = true
     Scaffold(topBar = {
         TopAppBar(
             showBack = showVisible,
