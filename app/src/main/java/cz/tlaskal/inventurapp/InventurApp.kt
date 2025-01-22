@@ -61,8 +61,6 @@ enum class AppBarActionState {
     SELECT,
 }
 
-const val ERROR_VISIBILITY_DURATION: Long = 5000
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
