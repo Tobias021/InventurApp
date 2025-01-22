@@ -1,8 +1,8 @@
 package cz.tlaskal.inventurapp.ui.home
 
+import android.database.sqlite.SQLiteException
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -10,21 +10,21 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import cz.tlaskal.inventurapp.AppBarActionState
-import cz.tlaskal.inventurapp.ERROR_VISIBILITY_DURATION
 import cz.tlaskal.inventurapp.InventurApplication
 import cz.tlaskal.inventurapp.data.Item
 import cz.tlaskal.inventurapp.data.ItemsRepository
 import cz.tlaskal.inventurapp.util.DatabaseSeeder
-import kotlinx.coroutines.CancellationException
+import cz.tlaskal.inventurapp.util.ERROR_VISIBILITY_DURATION
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.builtins.serializer
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 data class HomeUiState(
     val items: List<Item> = emptyList(),
@@ -44,15 +44,9 @@ data class SnackbarItemsDeletdStrings(
 )
 
 class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() {
-
-//    private val _items: MutableStateFlow<List<Item>> = MutableStateFlow(emptyList())
-//    val items: StateFlow<List<Item>> = _items.asStateFlow()
-//
-//    private val _actionState = MutableStateFlow(AppBarActionState.DEFAULT)
-//    val actionState: StateFlow<AppBarActionState> = _actionState.asStateFlow()
-
     private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
+
     private val deletedItemsCache: MutableList<Item> = mutableListOf()
     private var runningErrorJob: Job? = null
 
@@ -139,8 +133,8 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
         viewModelScope.launch {
             try {
                 DatabaseSeeder(itemsRepository).seedDatabase()
-            } catch (exception: Exception) {
-                showError("Chyba při seedování DB")
+            } catch (e: SQLiteException) {
+                showError("Chyba při seedování DB: " + e.message)
             }
         }
     }
