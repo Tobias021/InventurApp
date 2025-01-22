@@ -2,6 +2,7 @@ package cz.tlaskal.inventurapp.ui.home
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -14,7 +15,10 @@ import cz.tlaskal.inventurapp.InventurApplication
 import cz.tlaskal.inventurapp.data.Item
 import cz.tlaskal.inventurapp.data.ItemsRepository
 import cz.tlaskal.inventurapp.util.DatabaseSeeder
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -50,6 +54,7 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
     private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
     private val deletedItemsCache: MutableList<Item> = mutableListOf()
+    private var runningErrorJob: Job? = null
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -95,10 +100,7 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
     }
 
     fun isItemSelected(item: Item): Boolean {
-        if (item in uiState.value.selectedItems) {
-            return true
-        }
-        return false
+        return item in uiState.value.selectedItems
     }
 
     fun deleteSelectedItems(showSnackDeleted: suspend (count: Int) -> SnackbarResult) {
@@ -119,14 +121,14 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
         switchActionState(AppBarActionState.DEFAULT)
     }
 
-    fun deleteAllItems(showSnackDeleted: suspend (count: Int) -> SnackbarResult){
-        viewModelScope.launch(Dispatchers.IO){
+    fun deleteAllItems(showSnackDeleted: suspend (count: Int) -> SnackbarResult) {
+        viewModelScope.launch(Dispatchers.IO) {
             clearDeletedItemsCache()
             val count = uiState.value.items.count()
-                deletedItemsCache.addAll(uiState.value.items)
+            deletedItemsCache.addAll(uiState.value.items)
             itemsRepository.nukeItems()
-            showSnackDeleted(count).also{
-                if (it == SnackbarResult.ActionPerformed){
+            showSnackDeleted(count).also {
+                if (it == SnackbarResult.ActionPerformed) {
                     revertLastDelete()
                 }
             }
@@ -143,12 +145,17 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
         }
     }
 
-    fun showDeleteDialog(show: Boolean = true){
+    fun showDeleteDialog(show: Boolean = true) {
         _uiState.update { it.copy(deleteDialogVisible = show) }
     }
 
-    fun showError(mesg: String) {
-        viewModelScope.launch {
+    fun showError(mesg: String?) {
+        runningErrorJob?.cancel(CancellationException("New error spawned"))
+        runningErrorJob = viewModelScope.launch {
+            if (mesg == null) {
+                _uiState.update { it.copy(error = null) }
+                return@launch
+            }
             _uiState.update { it.copy(error = mesg) }
             delay(ERROR_VISIBILITY_DURATION)
             _uiState.update { it.copy(error = null) }
