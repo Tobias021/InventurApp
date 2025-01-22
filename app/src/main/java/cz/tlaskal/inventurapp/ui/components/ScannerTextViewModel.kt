@@ -1,46 +1,41 @@
 package cz.tlaskal.inventurapp.ui.components
 
-import android.content.Context
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
-import cz.tlaskal.inventurapp.util.BarcodeProcessor
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.flow.updateAndGet
 
 
 class ScannerTextViewModel: ViewModel() {
     
     data class ScannerUiState(
-        val barcode: String = "",
+        val barcode: TextFieldValue = TextFieldValue(),
         val showScanned: Boolean = false,
+        val showScanner: Boolean = false
     )
     
-    private val _uiState = MutableStateFlow(ScannerUiState())
-    val uiState: StateFlow<ScannerUiState> = _uiState.asStateFlow()
+    val _uiState = MutableStateFlow(ScannerUiState())
+    val uiState = _uiState.asStateFlow()
 
-    fun scanBarcode(context: Context) {
-        // Spustí skenování čárového kódu a uloží výsledek do _barcode
-        val processor = BarcodeProcessor()
-        processor.scan(context) {
-            val newBarcode = it.rawValue.toString();
-            barcodeChanged(newBarcode)
-        }
+    fun showScanner(show: Boolean = true) {
+        _uiState.update { it.copy(showScanner = show) }
     }
-;
-    fun barcodeChanged(barcode: String){
-        _uiState.updateAndGet { it.copy(barcode = barcode) }
-            .barcode.let {
-                updateShowScanned(it)
-            }
+
+    fun barcodeChanged(barcode: TextFieldValue){
+        _uiState.update{it.copy(barcode = barcode)}
+        updateShowScanned(barcode.text)
+        if(uiState.value.showScanner){
+        _uiState.update{it.copy(showScanner  = false)}
+        }
     }
 
     private fun updateShowScanned(barcode: String){
+        var show = false
         if (barcode.isNotEmpty()) {
-            _uiState.update { it.copy(showScanned = true) }
-        }else{
-            _uiState.update { it.copy(showScanned = false) }
+            show = true
         }
+        _uiState.update{it.copy(showScanned = show)}
+
     }
 }
