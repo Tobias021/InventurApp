@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">InventurApp</string>
-    <string name="barcodeTextFieldLabel">Kód objektu</string>
+    <string name="barcodeTextFieldLabel">Kód položky</string>
     <string name="back">Zpátky</string>
     <string name="top_bar_title">InventurApp</string>
     <string name="home_title">Přehled položek</string>
@@ -19,4 +19,5 @@
     <string name="no">Ne</string>
     <string name="delete_all">Vymazat vše</string>
     <string name="delete_safety_checkbox">"Vím co dělám: "</string>
+    <string name="scan_button">Tlačítko skenuj</string>
 </resources>
