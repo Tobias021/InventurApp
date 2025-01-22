@@ -3,6 +3,7 @@ package cz.tlaskal.inventurapp.ui.home
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +37,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -68,7 +70,6 @@ fun HomeScreen() {
     val viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val scannerViewModel: ScannerTextViewModel = viewModel()
-    val scannerUiState = scannerViewModel.uiState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     val hapticFeedback = LocalHapticFeedback.current
@@ -168,6 +169,8 @@ fun HomeScreen() {
                             .fillMaxWidth()
                             .heightIn(10.dp, 50.dp)
                             .background(MaterialTheme.colorScheme.error)
+                            .clickable { viewModel.showError(null) }
+
                     ) {
                         Text(
                             text = uiState.value.error!!,
@@ -177,19 +180,11 @@ fun HomeScreen() {
                     }
                 }
 
-                Greeting(
-                    name = "Tobias",
-                    modifier = Modifier.padding(innerPadding)
-                )
-
-                if (scannerUiState.value.showScanned) {
-                    Text("Naskenovaný kód: ${scannerUiState.value.barcode}")
-                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ScannerTextView(viewModel = scannerViewModel, "kodik objektu")
                 }
 
-                LazyColumn() {
+                LazyColumn {
                     items(items = uiState.value.items, key = { it.id }) {
                         ItemView(
                             item = it,
