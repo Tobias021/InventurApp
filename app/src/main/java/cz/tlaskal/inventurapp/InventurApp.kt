@@ -1,5 +1,7 @@
 package cz.tlaskal.inventurapp
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
@@ -50,6 +52,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlin.time.Duration
 
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun InventurApp(navController: NavHostController = rememberNavController()) {
     AppNavHost(navController)
@@ -96,7 +99,7 @@ fun TopAppBar(
                         enter = expandHorizontally(),
                         exit = shrinkHorizontally()
                     ) {
-                        IconButton(onClick = { onBackClicked }) {
+                        IconButton(onClick = onBackClicked) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Sharp.ArrowBack,
                                 contentDescription = stringResource(R.string.back),
