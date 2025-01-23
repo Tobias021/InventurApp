@@ -8,7 +8,7 @@
     <string name="search_items">Vyhledej položku</string>
     <string name="close">Zavřít</string>
     <string name="delete_selected">Smazat vybrané</string>
-    <string name="created_at">Vytvořeno:\ </string>
+    <string name="created_at">Vytvořeno\ </string>
     <string name="item_deleted">\ položka smazána.</string>
     <string name="few_items_deleted">\ položky smazány.</string>
     <string name="many_items_deleted">\ položek smazáno.</string>
@@ -20,4 +20,11 @@
     <string name="delete_all">Vymazat vše</string>
     <string name="delete_safety_checkbox">"Vím co dělám: "</string>
     <string name="scan_button">Tlačítko skenuj</string>
+    <string name="item_detail">Detail položky</string>
+    <string name="new_item_screen_title">Nová položka</string>
+    <string name="new_item_code">Kód nové položky</string>
+    <string name="name">Název</string>
+    <string name="description">Popis</string>
+    <string name="save">Uložit</string>
+    <string name="id_not_unique">ID položky již existuje</string>
 </resources>
