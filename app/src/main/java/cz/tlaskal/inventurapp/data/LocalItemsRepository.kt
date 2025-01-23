@@ -8,6 +8,10 @@ class LocalItemsRepository(private val itemDao: ItemDao) : ItemsRepository {
         return itemDao.getAllItems()
     }
 
+    override fun getAllItemsIdsStream(): Flow<List<String>> {
+        return itemDao.getAllItemsIds()
+    }
+
     override fun getActiveItems(): Flow<List<Item>> {
         return itemDao.getActiveItems()
     }
@@ -36,7 +40,13 @@ class LocalItemsRepository(private val itemDao: ItemDao) : ItemsRepository {
         return itemDao.nukeItems()
     }
 
+    override fun searchItemById(id: String): Flow<List<Item>> {
+        return itemDao.searchItemById(id)
+    }
+
     override suspend fun getItemsCount(): Int {
         return itemDao.getCount()
     }
+
+
 }

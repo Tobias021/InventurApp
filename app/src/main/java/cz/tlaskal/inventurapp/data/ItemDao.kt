@@ -23,13 +23,19 @@ interface ItemDao {
     @Query("SELECT * FROM items WHERE id = :id")
     fun getItem(id: String): Flow<Item>
 
+    @Query("SELECT * FROM items WHERE id LIKE :id||'%'")
+    fun searchItemById(id: String): Flow<List<Item>>
+
     @Query("SELECT * FROM items")
     fun getAllItems(): Flow<List<Item>>
 
-    @Query("SELECT * FROM items WHERE vyrazeno = FALSE")
+    @Query("SELECT id FROM items")
+    fun getAllItemsIds(): Flow<List<String>>
+
+    @Query("SELECT * FROM items WHERE zkontrolovano = FALSE")
     fun getActiveItems(): Flow<List<Item>>
 
-    @Query("SELECT * FROM items WHERE vyrazeno = TRUE")
+    @Query("SELECT * FROM items WHERE zkontrolovano = TRUE")
     fun getInactiveItems(): Flow<List<Item>>
 
     @Query("DELETE FROM items ")

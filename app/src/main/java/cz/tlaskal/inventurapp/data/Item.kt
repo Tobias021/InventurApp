@@ -11,6 +11,5 @@ data class Item(
     val nazev: String,
     val popis: String,
     val vytvoreno: Long,
-    val vyrazeno: Boolean,
-    val datum_vyrazeni: Long = 0
+    val zkontrolovano: Boolean = false
 )

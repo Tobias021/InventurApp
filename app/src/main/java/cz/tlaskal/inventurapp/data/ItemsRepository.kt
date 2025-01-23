@@ -6,9 +6,13 @@ interface ItemsRepository {
 
     fun getAllItemsStream(): Flow<List<Item>>
 
+    fun getAllItemsIdsStream(): Flow<List<String>>
+
     fun getActiveItems(): Flow<List<Item>>
 
     fun getInactiveItems(): Flow<List<Item>>
+
+    suspend fun getItemsCount(): Int
 
     fun getItemStream(id: String): Flow<Item?>
 
@@ -20,5 +24,6 @@ interface ItemsRepository {
 
     suspend fun nukeItems()
 
-    suspend fun getItemsCount(): Int
+    fun searchItemById(id: String): Flow<List<Item>>
+
 }
