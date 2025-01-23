@@ -26,7 +26,7 @@ interface ItemDao {
     @Query("SELECT * FROM items WHERE id LIKE :id||'%'")
     fun searchItemById(id: String): Flow<List<Item>>
 
-    @Query("SELECT * FROM items")
+    @Query("SELECT * FROM items ORDER BY nazev ASC")
     fun getAllItems(): Flow<List<Item>>
 
     @Query("SELECT id FROM items")
