@@ -1,25 +1,42 @@
 package cz.tlaskal.inventurapp.ui.nav
 
-import androidx.compose.foundation.layout.padding
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import cz.tlaskal.inventurapp.ui.home.HomeDestination
 import cz.tlaskal.inventurapp.ui.home.HomeScreen
+import cz.tlaskal.inventurapp.ui.item.NewItemScreen
+import kotlinx.serialization.Serializable
 
+
+@Serializable
+object Home
+
+@Serializable
+data class ItemDetail(val itemId: String)
+
+@Serializable
+object NewItem
+
+
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier)
 {
     NavHost(
         navController = navController,
-        startDestination = HomeDestination.route,
-        modifier = modifier
+        startDestination = Home,
+        modifier = modifier,
     ){
-        composable(route = HomeDestination.route){
-            HomeScreen()
+        composable<Home>{
+            HomeScreen({navController.navigate(NewItem)})
+        }
+        composable<NewItem>{
+            NewItemScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }
