@@ -1,21 +1,20 @@
 package cz.tlaskal.inventurapp.ui.home
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -31,6 +30,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,29 +39,26 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import cz.tlaskal.inventurapp.AppBarActionState
 import cz.tlaskal.inventurapp.R
 import cz.tlaskal.inventurapp.TopAppBar
-import cz.tlaskal.inventurapp.ui.components.ItemView
+import cz.tlaskal.inventurapp.ui.components.Error
+import cz.tlaskal.inventurapp.ui.components.Item
 import cz.tlaskal.inventurapp.ui.components.ScannerTextView
 import cz.tlaskal.inventurapp.ui.components.ScannerTextViewModel
-import cz.tlaskal.inventurapp.ui.nav.NavDestination
 import cz.tlaskal.inventurapp.ui.theme.InventurAppTheme
 
-object HomeDestination : NavDestination {
-    override val route: String
-        get() = "home"
-    override val titleResource: Int
-        get() = R.string.home_title
-}
-
 @Composable
-fun HomeScreen() {
+fun HomeScreen(onAddItem: () -> Unit) {
     val viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+
     val scannerViewModel: ScannerTextViewModel = viewModel()
+    val scannerUiState = scannerViewModel.uiState.collectAsStateWithLifecycle()
 
     val hapticFeedback = LocalHapticFeedback.current
     val snackbarOnDeleted = snackbarOnDeleted(viewModel)
 
-
+    BackHandler(scannerUiState.value.barcode.text.isNotEmpty()) {
+        scannerViewModel.barcodeChanged(TextFieldValue())
+    }
 
     InventurAppTheme {
         Scaffold(
@@ -69,10 +66,10 @@ fun HomeScreen() {
                 .fillMaxSize(),
             topBar = {
                 TopAppBar(
-                    title = stringResource(HomeDestination.titleResource),
+                    title = stringResource(R.string.home_title),
                     barAction = uiState.value.actionState,
                     onActionSelectClicked = { viewModel.switchActionState(AppBarActionState.SELECT) },
-                    onActionCloseSelectClicked = { viewModel.seed() },
+                    onActionCloseSelectClicked = { viewModel.switchActionState(AppBarActionState.DEFAULT) },
                     onActionDeleteClicked = {
                         viewModel.deleteSelectedItems(snackbarOnDeleted)
                     },
@@ -81,6 +78,13 @@ fun HomeScreen() {
                         viewModel.showDeleteDialog()
                     }
                 )
+            },
+            floatingActionButton = @Composable {
+                InventurAppTheme {
+                    FloatingActionButton(onClick = onAddItem) {
+                        Icon(Icons.Default.Add, stringResource(R.string.add_item))
+                    }
+                }
             },
             snackbarHost = { SnackbarHost(HomeViewModel.SnackbarHostState) }
 
@@ -93,30 +97,25 @@ fun HomeScreen() {
 
             Column(modifier = Modifier.padding(innerPadding)) {
 
-                if (uiState.value.error != null) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(10.dp, 50.dp)
-                            .background(MaterialTheme.colorScheme.error)
-                            .clickable { viewModel.showError(null) }
+                Error(
+                    message = uiState.value.error,
+                    onClick = { viewModel.showError(null) }
+                )
 
-                    ) {
-                        Text(
-                            text = uiState.value.error!!,
-                            modifier = Modifier.padding(5.dp),
-                            color = Color.Black
-                        )
-                    }
-                }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    ScannerTextView(viewModel = scannerViewModel, "kodik objektu")
+                    ScannerTextView(
+                        viewModel = scannerViewModel,
+                        labelText = "Filtr ID",
+                        onValueChange = {
+                            viewModel.onFilterChanged(it.text)
+                        }
+                    )
                 }
 
                 LazyColumn {
                     items(items = uiState.value.items, key = { it.id }) {
-                        ItemView(
+                        Item(
                             item = it,
                             isSelectable = uiState.value.isItemSelectable,
                             isSelected = viewModel.isItemSelected(it),
@@ -127,12 +126,6 @@ fun HomeScreen() {
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun HomeScreenPreview() {
-    HomeScreen()
 }
 
 @Composable
@@ -184,7 +177,7 @@ fun ConfirmDeleteAllDialog(viewModel: HomeViewModel) {
 }
 
 @Composable
-fun snackbarOnDeleted(viewModel: HomeViewModel): suspend (count: Int) -> SnackbarResult{
+fun snackbarOnDeleted(viewModel: HomeViewModel): suspend (count: Int) -> SnackbarResult {
     val snackStrings = SnackbarItemsDeletdStrings(
         stringResource(R.string.item_deleted),
         stringResource(R.string.few_items_deleted),
@@ -193,7 +186,7 @@ fun snackbarOnDeleted(viewModel: HomeViewModel): suspend (count: Int) -> Snackba
     )
     val actionLabel = stringResource(R.string.revert_deleted)
 
-    return {count: Int ->
+    return { count: Int ->
         HomeViewModel.SnackbarHostState
             .showSnackbar(
                 message = viewModel.getSnackDeletedMessage(
@@ -205,5 +198,10 @@ fun snackbarOnDeleted(viewModel: HomeViewModel): suspend (count: Int) -> Snackba
                 duration = SnackbarDuration.Long
             )
     }
+}
+
+@Composable
+fun NoItemsMessage(onAddItem: () -> Unit) {
+    TODO()
 }
 

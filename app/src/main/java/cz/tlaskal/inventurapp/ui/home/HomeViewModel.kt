@@ -16,15 +16,19 @@ import cz.tlaskal.inventurapp.data.ItemsRepository
 import cz.tlaskal.inventurapp.util.DatabaseSeeder
 import cz.tlaskal.inventurapp.util.ERROR_VISIBILITY_DURATION
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 data class HomeUiState(
     val items: List<Item> = emptyList(),
@@ -32,7 +36,7 @@ data class HomeUiState(
     val isItemSelectable: Boolean = false,
     val selectedItems: List<Item> = emptyList(),
     val error: String? = null,
-    val deleteDialogVisible: Boolean = false
+    val deleteDialogVisible: Boolean = false,
 )
 
 data class SnackbarItemsDeletdStrings(
@@ -43,12 +47,26 @@ data class SnackbarItemsDeletdStrings(
 
 )
 
+@OptIn(FlowPreview::class)
 class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() {
     private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
 
+    private val _filterText: MutableSharedFlow<String> = MutableSharedFlow<String>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val filterText = _filterText.asSharedFlow()
+
+    private var itemProviderJob: Job? = null
+        set(value) {
+            itemProviderJob?.cancel(CancellationException("New item provider job launched"))
+            field = value
+        }
+
     private val deletedItemsCache: MutableList<Item> = mutableListOf()
     private var runningErrorJob: Job? = null
+
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -63,12 +81,18 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
 
     init {
         viewModelScope.launch {
-            itemsRepository.getAllItemsStream().collect {
-                val items = it
-                _uiState.update { it.copy(items = items) }
-            }
+            filterText
+                .debounce(700)
+                .collectLatest {
+                    if (it.isNotBlank()) {
+                        itemProviderJob = provideSearchedItemsJob(it)
+                    } else {
+                        itemProviderJob = provideAllItemsJob()
+                    }
+                }
         }
     }
+
 
     fun switchActionState(state: AppBarActionState) {
         _uiState.update { it.copy(actionState = state) }
@@ -177,6 +201,32 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
             1 -> countString + strings.one_deleted
             in 2..4 -> countString + strings.few_deleted
             else -> countString + strings.many_deleted
+        }
+    }
+
+    fun onFilterChanged(filter: String) {
+        _filterText.tryEmit(filter)
+    }
+
+    private fun provideAllItemsJob(): Job {
+        return viewModelScope.launch {
+            itemsRepository.getAllItemsStream().collect {
+                val items = it
+                _uiState.update {
+                    it.copy(items = items)
+                }
+            }
+        }
+    }
+
+    private fun provideSearchedItemsJob(id: String): Job {
+        return viewModelScope.launch {
+            itemsRepository.searchItemById(id).collect {
+                val itemsFiltered = it
+                _uiState.update {
+                    it.copy(items = itemsFiltered)
+                }
+            }
         }
     }
 }
