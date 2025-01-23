@@ -1,7 +1,6 @@
 package cz.tlaskal.inventurapp.data
 
 import kotlinx.coroutines.flow.Flow
-import java.util.Date
 
 class LocalItemsRepository(private val itemDao: ItemDao) : ItemsRepository {
     override fun getAllItemsStream(): Flow<List<Item>> {
