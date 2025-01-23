@@ -27,4 +27,6 @@
     <string name="description">Popis</string>
     <string name="save">Uložit</string>
     <string name="id_not_unique">ID položky již existuje</string>
+    <string name="add_item">Přidat položku</string>
+    <string name="clear">Vymazat</string>
 </resources>
