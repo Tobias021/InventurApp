@@ -3,7 +3,7 @@
     <string name="barcodeTextFieldLabel">Kód položky</string>
     <string name="back">Zpátky</string>
     <string name="top_bar_title">InventurApp</string>
-    <string name="home_title">Přehled položek</string>
+    <string name="home_title">Seznam položek</string>
     <string name="select_items">Vybrat položky</string>
     <string name="search_items">Vyhledej položku</string>
     <string name="close">Zavřít</string>
@@ -29,4 +29,11 @@
     <string name="id_not_unique">ID položky již existuje</string>
     <string name="add_item">Přidat položku</string>
     <string name="clear">Vymazat</string>
+    <string name="no_items_message">Nejsou evidovány žádné položky. </string>
+    <string name="you_can">Můžete si\ </string>
+    <string name="create_new">vytvořit novou položku!</string>
+    <string name="create_item">Vytvořit novou položku</string>
+    <string name="update_item">Aktualizovat</string>
+    <string name="cancel">Zrušit</string>
+    <string name="item_code">Kód položky</string>
 </resources>
