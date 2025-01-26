@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     kotlin("plugin.serialization") version "2.0.21"
-    id("com.google.dagger.hilt.android")
+//    id("com.google.dagger.hilt.android")
     kotlin("kapt")
 }
 
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId = "cz.tlaskal.inventurapp"
         minSdk = 31
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -65,7 +65,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.play.services.code.scanner)
     implementation(libs.kotlinx.serialization.json)
-    kapt(libs.hilt.android.compiler.v2511)
+//    kapt(libs.hilt.android.compiler.v2511)
     implementation(libs.hilt.android)
 }
 
