@@ -44,10 +44,7 @@ class MainActivity : ComponentActivity() {
         }
         enableEdgeToEdge()
         setContent {
-           // InventurAppTheme {
                 InventurApp()
-            //}
-            //MainView(viewModel, this)
         }
     }
 }
