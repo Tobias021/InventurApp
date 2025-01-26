@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface ItemsRepository {
 
-    fun getAllItemsStream(): Flow<List<Item>>
+    fun getAllItemsStream(asc: Boolean = true): Flow<List<Item>>
 
     fun getAllItemsIdsStream(): Flow<List<String>>
 
