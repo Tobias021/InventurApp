@@ -32,7 +32,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 data class HomeUiState(
     val items: List<Item> = emptyList(),
-    val actionState: AppBarActionState = AppBarActionState.DEFAULT,
+    val actionState: AppBarActionState = AppBarActionState.HOME,
     val isItemSelectable: Boolean = false,
     val selectedItems: List<Item> = emptyList(),
     val error: String? = null,
@@ -136,7 +136,7 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
                 }
             }
         }
-        switchActionState(AppBarActionState.DEFAULT)
+        switchActionState(AppBarActionState.HOME)
     }
 
     fun deleteAllItems(showSnackDeleted: suspend (count: Int) -> SnackbarResult) {

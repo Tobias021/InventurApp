@@ -44,16 +44,18 @@ import androidx.navigation.compose.rememberNavController
 import cz.tlaskal.inventurapp.ui.nav.AppNavHost
 import cz.tlaskal.inventurapp.ui.theme.InventurAppTheme
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+
 @Composable
 fun InventurApp(navController: NavHostController = rememberNavController()) {
     AppNavHost(navController)
 }
 
 enum class AppBarActionState {
-    DEFAULT,
+    HOME,
+    DETAIL,
     SEARCH,
     SELECT,
+    NONE
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,6 +67,7 @@ fun TopAppBar(
     onBackClicked: (() -> Unit) = {},
     onActionSearchClicked: (() -> Unit) = {},
     onActionSelectClicked: (() -> Unit) = {},
+    onActionEditClicked: (()->Unit) = {},
     onActionCloseSelectClicked: (() -> Unit) = {},
     onActionDeleteClicked: (() -> Unit) = {},
     onActionDeleteHeld: (() -> Unit) = {}
@@ -114,14 +117,20 @@ fun TopAppBar(
                         )
                     }
 
-                    AppBarActionState.DEFAULT -> {
-                        AppBarDefaultAction(
+                    AppBarActionState.HOME -> {
+                        AppBarHomeAction(
                             onActionSelectClicked,
                             onActionSearchClicked
                         )
                     }
 
-                    null -> {}
+                    AppBarActionState.DETAIL -> {
+                        AppBarDetailAction(
+                            onActionEditClicked
+                        )
+                    }
+
+                    AppBarActionState.NONE, null -> {}
                 }
             },
             modifier = Modifier
@@ -149,7 +158,7 @@ fun TopAppBarPreview() {
 
 
 @Composable
-fun AppBarDefaultAction(onActionSelectClicked: (() -> Unit), onActionSearchClicked: (() -> Unit)) {
+fun AppBarHomeAction(onActionSelectClicked: (() -> Unit), onActionSearchClicked: (() -> Unit)) {
     Row {
         IconButton(onClick = onActionSelectClicked) {
             Icon(Icons.Filled.Edit, stringResource(R.string.select_items))
@@ -182,6 +191,15 @@ fun AppBarSelectAction(
         }
         IconButton(onClick = onActionCloseSelectClicked) {
             Icon(Icons.Filled.Close, stringResource(R.string.close))
+        }
+    }
+}
+
+@Composable
+fun AppBarDetailAction(onActionEditClicked: (() -> Unit)) {
+    Row {
+        IconButton(onClick = onActionEditClicked) {
+            Icon(Icons.Filled.Edit, stringResource(R.string.select_items))
         }
     }
 }
