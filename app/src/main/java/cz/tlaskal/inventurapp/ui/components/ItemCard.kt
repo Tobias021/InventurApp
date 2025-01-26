@@ -23,11 +23,20 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import cz.tlaskal.inventurapp.data.Item
 import cz.tlaskal.inventurapp.ui.theme.InventurAppTheme
+import cz.tlaskal.inventurapp.util.limitLength
 import cz.tlaskal.inventurapp.util.timestampToString
 import java.util.Date
 
 @Composable
-fun Item(item: Item, isSelectable: Boolean = false, isSelected: Boolean = false, onClick: () -> Unit = {}) {
+fun Item(
+    item: Item,
+    isSelectable: Boolean = false,
+    isSelected: Boolean = false,
+    onClick: () -> Unit = {}
+) {
+    val itemName = item.nazev.limitLength(20)
+    val itemDescription = item.popis.limitLength(80)
+
     Card(
         colors = CardDefaults
             .cardColors(
@@ -49,22 +58,31 @@ fun Item(item: Item, isSelectable: Boolean = false, isSelected: Boolean = false,
         ) {
             Column {
                 val titleStyle = MaterialTheme.typography.titleMedium
-                Text(text = item.nazev, fontSize = titleStyle.fontSize, fontStyle = titleStyle.fontStyle, fontWeight = titleStyle.fontWeight, fontFamily = titleStyle.fontFamily)
+                Text(
+                    text = itemName,
+                    fontSize = titleStyle.fontSize,
+                    fontStyle = titleStyle.fontStyle,
+                    fontWeight = titleStyle.fontWeight,
+                    fontFamily = titleStyle.fontFamily
+                )
                 Spacer(modifier = Modifier.height(2.dp))
-                Text(text = "popis: " + item.popis,
-                    modifier = Modifier.padding(start = 20.dp))
+                Text(
+                    text = itemDescription,
+                    modifier = Modifier.padding(start = 20.dp)
+                )
             }
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.End) {
-                if(isSelectable){
+                horizontalAlignment = Alignment.End
+            ) {
+                if (isSelectable) {
                     Checkbox(checked = isSelected, onCheckedChange = null)
                 }
             }
         }
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End){
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             Text(
-                text = stringResource(R.string.created_at)+timestampToString(item.vytvoreno),
+                text = stringResource(R.string.created_at) + timestampToString(item.vytvoreno),
                 textAlign = TextAlign.Right,
                 modifier = Modifier.padding(vertical = 5.dp, horizontal = 15.dp)
             )
@@ -76,6 +94,6 @@ fun Item(item: Item, isSelectable: Boolean = false, isSelected: Boolean = false,
 @Composable
 fun ItemViewPreview() {
     InventurAppTheme {
-    Item(Item("125455", "Nazvik", "Popis", Date.UTC(2022,2,11,8,20, 36), false), true)
+        Item(Item("125455", "Nazvik", "Popis", Date.UTC(2022, 2, 11, 8, 20, 36), false), true)
     }
 }
