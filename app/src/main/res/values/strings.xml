@@ -36,4 +36,6 @@
     <string name="update_item">Aktualizovat</string>
     <string name="cancel">Zrušit</string>
     <string name="item_code">Kód položky</string>
+    <string name="id_filter">Filtr ID</string>
+    <string name="name_is_blank">Název položky je prázdný</string>
 </resources>
