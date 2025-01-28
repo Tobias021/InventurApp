@@ -1,6 +1,5 @@
 package cz.tlaskal.inventurapp.ui.item
 
-import android.text.Editable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -14,7 +13,6 @@ import cz.tlaskal.inventurapp.data.ItemsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -22,14 +20,29 @@ data class ItemDetailUiState(
     val editable: Boolean = false,
     val isLoading: Boolean = true,
     val itemData: Item? = null,
-    val editedItemData: Item? = null,
+    val idNotUnique: Boolean = false,
+    val nameIsBlank: Boolean = false,
     val appBarAction: AppBarActionState = AppBarActionState.DETAIL,
     val showDatePicker: Boolean = false,
 )
 
-class ItemDetailViewModel(itemRepository: ItemsRepository, itemId: String) : ViewModel() {
+enum class ItemDetailFormFields() {
+    ID,
+    NAME,
+    DESCRIPTION,
+    CREATED_AT
+}
+
+class ItemDetailViewModel(val itemRepository: ItemsRepository, val itemId: String) : ViewModel() {
+
     private val _uiState = MutableStateFlow<ItemDetailUiState>(ItemDetailUiState())
     val uiState = _uiState.asStateFlow()
+
+    private val _editStates: MutableStateFlow<MutableMap<ItemDetailFormFields, Boolean>> =
+        MutableStateFlow(mutableMapOf<ItemDetailFormFields, Boolean>())
+    val editStates = _editStates.asStateFlow()
+
+    private var registeredIds: List<String> = listOf()
 
     companion object {
         val Factory: (itemId: String) -> ViewModelProvider.Factory = { itemId ->
@@ -46,7 +59,13 @@ class ItemDetailViewModel(itemRepository: ItemsRepository, itemId: String) : Vie
 
     init {
         val itemFlow = itemRepository.getItemStream(itemId)
+        val idsFlow = itemRepository.getAllItemsIdsStream()
         registerItemCollector(itemFlow)
+        registerIdsCollector(idsFlow)
+
+        ItemDetailFormFields.entries.forEach {
+            _editStates.value[it] = false
+        }
     }
 
     private fun registerItemCollector(itemFlow: Flow<Item?>) {
@@ -54,11 +73,21 @@ class ItemDetailViewModel(itemRepository: ItemsRepository, itemId: String) : Vie
             itemFlow.collect {
                 val item = it
                 _uiState.update { it.copy(itemData = item) }
-            }
-        }.invokeOnCompletion {
-            _uiState.update { it.copy(isLoading = false) }
-        }
 
+                if (uiState.value.isLoading) {
+                    _uiState.update { it.copy(isLoading = false) }
+                }
+            }
+        }
+    }
+
+    private fun registerIdsCollector(idsFlow: Flow<List<String>>) {
+        viewModelScope.launch {
+            idsFlow.collect {
+                val ids = it
+                registeredIds = ids.minus(itemId)
+            }
+        }
     }
 
     fun editClicked() {
@@ -66,7 +95,6 @@ class ItemDetailViewModel(itemRepository: ItemsRepository, itemId: String) : Vie
             it.copy(
                 editable = true,
                 appBarAction = AppBarActionState.NONE,
-                editedItemData = uiState.value.itemData
             )
         }
     }
@@ -80,7 +108,53 @@ class ItemDetailViewModel(itemRepository: ItemsRepository, itemId: String) : Vie
         _uiState.update { it.copy(showDatePicker = show) }
     }
 
-    fun createDatePicked(timestamp: Long) {
-        _uiState.update { it.copy(itemData = it.itemData?.copy(vytvoreno = timestamp)) }
+    fun idExists(id: String): Boolean {
+        if (registeredIds.contains(id)) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    fun idChanged(id: String) {
+        _uiState.update { it.copy(itemData = it.itemData?.copy(id = id)) }
+        if (idExists(id) != uiState.value.idNotUnique) {
+            _uiState.update { it.copy(idNotUnique = !uiState.value.idNotUnique) }
+        }
+    }
+
+    fun nameChanged(name: String) {
+        _uiState.update { it.copy(itemData = it.itemData?.copy(nazev = name)) }
+        if (uiState.value.nameIsBlank && name.isNotBlank()) {
+            _uiState.update { it.copy(nameIsBlank = false) }
+        } else if (name.isBlank()) {
+            _uiState.update { it.copy(nameIsBlank = true) }
+        }
+    }
+
+    fun descriptionChanged(description: String) {
+        _uiState.update { it.copy(itemData = it.itemData?.copy(popis = description)) }
+    }
+
+    fun createdDateChanged(created: Long) {
+        _uiState.update { it.copy(itemData = it.itemData?.copy(vytvoreno = created)) }
+    }
+
+    fun updateItem(item: Item) {
+        if (itemId == uiState.value.itemData?.id) {
+            viewModelScope.launch {
+                itemRepository.updateItem(item)
+            }
+        } else {
+            viewModelScope.launch {
+                itemRepository.getItemStream(itemId).collect {
+                    if (it != null) {
+                        itemRepository.deleteItem(it)
+                        itemRepository.insertItem(item)
+                    }
+                    return@collect
+                }
+            }
+        }
     }
 }

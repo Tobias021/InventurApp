@@ -1,5 +1,6 @@
 package cz.tlaskal.inventurapp.ui.item
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,21 +8,22 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.focusTarget
@@ -34,30 +36,28 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import cz.tlaskal.inventurapp.R
 import cz.tlaskal.inventurapp.TopAppBar
 import cz.tlaskal.inventurapp.data.Item
-import cz.tlaskal.inventurapp.ui.components.ScannerTextView
-import cz.tlaskal.inventurapp.ui.components.ScannerTextViewModel
+import cz.tlaskal.inventurapp.ui.components.ScannerTextField
 import cz.tlaskal.inventurapp.ui.theme.InventurAppTheme
 import cz.tlaskal.inventurapp.util.timestampToString
 
 
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun ItemDetailScreen(id: String, onBackClicked: () -> Unit) {
 
     val viewModel: ItemDetailViewModel = viewModel(factory = ItemDetailViewModel.Factory(id))
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val isEnabled: Boolean = uiState.value.editable
-    val formData: Item? =
-        if(uiState.value.editable){
-            uiState.value.editedItemData
-        } else {
-            uiState.value.itemData
-        }
-
-    val scannerViewModel: ScannerTextViewModel = viewModel()
-    val scannerUiState: State<ScannerTextViewModel.ScannerUiState> =
-        scannerViewModel.uiState.collectAsStateWithLifecycle()
+    val datePickerState = rememberDatePickerState(System.currentTimeMillis())
 
     val focusManager: FocusManager = LocalFocusManager.current
+
+    val nameSupportText = {
+        if (uiState.value.nameIsBlank) {
+            @Composable { Text(stringResource(R.string.name_is_blank)) }
+        } else null
+    }
 
     BackHandler(enabled = uiState.value.editable) {
         viewModel.cancelEditClicked()
@@ -80,41 +80,46 @@ fun ItemDetailScreen(id: String, onBackClicked: () -> Unit) {
                     .padding(top = it.calculateTopPadding())
                     .padding(horizontal = 50.dp)
             ) {
-                Text("Item no: " + uiState.value.itemData?.id)
+                if (uiState.value.isLoading) {
+                    LinearProgressIndicator()
+                }
 
-                ScannerTextView(
-                    viewModel = scannerViewModel,
+                ScannerTextField(
                     labelText = stringResource(R.string.item_code),
-                    enabled = isEnabled,
-//                isError = isError,
-//                supportingText = supportingText
+                    readOnly = !isEnabled,
+                    onValueChange = { viewModel.idChanged(it.text) },
+                    text = uiState.value.itemData?.id,
+                    isError = viewModel.uiState.value.idNotUnique,
+                    supportingText = if (viewModel.uiState.value.idNotUnique) stringResource(R.string.id_not_unique) else null,
                 )
                 OutlinedTextField(
                     modifier = Modifier.focusTarget(),
-                    enabled = isEnabled,
-                    value = uiState.value.itemData?.nazev.toString(),
+                    readOnly = !isEnabled,
+                    value = uiState.value.itemData?.nazev ?: "",
                     label = @Composable { Text(stringResource(R.string.name)) },
-                    onValueChange = { /**name.value = it**/ },
+                    onValueChange = { viewModel.nameChanged(it) },
+                    isError = uiState.value.nameIsBlank,
+                    supportingText = nameSupportText(),
                     singleLine = true,
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
                 )
                 OutlinedTextField(
                     modifier = Modifier.focusTarget(),
-                    enabled = isEnabled,
-                    value = uiState.value.itemData?.popis.toString(),
+                    readOnly = !isEnabled,
+                    value = uiState.value.itemData?.popis ?: "",
                     label = @Composable { Text(stringResource(R.string.description)) },
-                    onValueChange = { /**description.value = it **/ },
+                    onValueChange = { viewModel.descriptionChanged(it) },
                     minLines = 3,
+                    maxLines = 7
                 )
                 OutlinedTextField(
-                    enabled = isEnabled,
                     value = timestampToString(uiState.value.itemData?.vytvoreno ?: 0),
                     onValueChange = { },
                     label = @Composable { Text(stringResource(R.string.created_at)) },
                     readOnly = true,
                     trailingIcon = @Composable {
                         if (isEnabled) {
-                            IconButton(onClick = {viewModel.showCreatedDatePicker() }) {
+                            IconButton(onClick = { viewModel.showCreatedDatePicker() }) {
                                 Icon(
                                     imageVector = Icons.Default.DateRange,
                                     contentDescription = "Select date"
@@ -142,19 +147,22 @@ fun ItemDetailScreen(id: String, onBackClicked: () -> Unit) {
                         Spacer(Modifier.width(10.dp))
                         Button(
                             {
-//                    viewModel
-//                        .createNewItem(
-//                            Item(
-//                                id.text,
-//                                name.value,
-//                                description.value,
-//                                selectedDate,
-//                                false
-//                            )
-//                        )
+                                val itemData = uiState.value.itemData!!
+                                viewModel
+                                    .updateItem(
+                                        Item(
+                                            itemData.id,
+                                            itemData.nazev,
+                                            itemData.popis,
+                                            itemData.vytvoreno,
+                                            itemData.zkontrolovano
+                                        )
+                                    )
+                                onBackClicked()
                             },
                             modifier = Modifier.weight(50f),
-                            shape = OutlinedTextFieldDefaults.shape
+                            shape = OutlinedTextFieldDefaults.shape,
+                            enabled = !uiState.value.idNotUnique
                         )
                         {
                             Text(stringResource(R.string.save))
@@ -163,13 +171,15 @@ fun ItemDetailScreen(id: String, onBackClicked: () -> Unit) {
                 }
 
 
-            if (uiState.value.showDatePicker) {
-                DatePickerModal(
-                    onDateSelected = { viewModel.createDatePicked(it!!)},
-                    onDismiss = { viewModel.showCreatedDatePicker(false) }
-                )
-            }
+                if (uiState.value.showDatePicker) {
+                    DatePickerModal(
+                        state = datePickerState,
+                        onDateSelected = { viewModel.createdDateChanged(it ?: 0) },
+                        onDismiss = { viewModel.showCreatedDatePicker(false) }
+                    )
+                }
             }
         }
     }
+
 }
