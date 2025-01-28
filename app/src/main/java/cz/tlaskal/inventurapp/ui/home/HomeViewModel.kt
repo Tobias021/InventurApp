@@ -37,6 +37,8 @@ data class HomeUiState(
     val selectedItems: List<Item> = emptyList(),
     val error: String? = null,
     val deleteDialogVisible: Boolean = false,
+    val isLoading: Boolean = true,
+    val idFilter: String = "",
 )
 
 data class SnackbarItemsDeletdStrings(
@@ -80,6 +82,12 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
     }
 
     init {
+        itemProviderJob = provideAllItemsJob()
+        registerItemFilter()
+        registerFilterColletor()
+    }
+
+    private fun registerItemFilter(){
         viewModelScope.launch {
             filterText
                 .debounce(700)
@@ -90,6 +98,18 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
                         itemProviderJob = provideAllItemsJob()
                     }
                 }
+            if(uiState.value.isLoading){
+                _uiState.update { it.copy(isLoading = false) }
+            }
+        }
+    }
+
+    private fun registerFilterColletor(){
+        viewModelScope.launch {
+            filterText.collectLatest {
+                val filterString = it
+                _uiState.update { it.copy(idFilter = filterString) }
+            }
         }
     }
 
@@ -204,7 +224,7 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
         }
     }
 
-    fun onFilterChanged(filter: String) {
+    fun filterChanged(filter: String) {
         _filterText.tryEmit(filter)
     }
 
