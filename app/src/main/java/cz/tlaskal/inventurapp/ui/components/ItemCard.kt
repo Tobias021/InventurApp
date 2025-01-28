@@ -1,6 +1,5 @@
 package cz.tlaskal.inventurapp.ui.components
 
-import cz.tlaskal.inventurapp.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,8 +20,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import cz.tlaskal.inventurapp.R
 import cz.tlaskal.inventurapp.data.Item
 import cz.tlaskal.inventurapp.ui.theme.InventurAppTheme
+import cz.tlaskal.inventurapp.util.endOnLineBreak
 import cz.tlaskal.inventurapp.util.limitLength
 import cz.tlaskal.inventurapp.util.timestampToString
 import java.util.Date
@@ -35,7 +36,7 @@ fun Item(
     onClick: () -> Unit = {}
 ) {
     val itemName = item.nazev.limitLength(20)
-    val itemDescription = item.popis.limitLength(80)
+    val itemDescription = item.popis.limitLength(80).endOnLineBreak()
 
     Card(
         colors = CardDefaults
