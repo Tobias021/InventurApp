@@ -76,8 +76,12 @@ fun ItemDetailScreen(id: String, onBackClicked: () -> Unit) {
             }
         ) {
             Column(
-                modifier = Modifier
-                    .padding(top = it.calculateTopPadding())
+                Modifier
+                    .padding(
+                        top = it
+                            .calculateTopPadding()
+                            .plus(40.dp)
+                    )
                     .padding(horizontal = 50.dp)
             ) {
                 if (uiState.value.isLoading) {
@@ -93,7 +97,9 @@ fun ItemDetailScreen(id: String, onBackClicked: () -> Unit) {
                     supportingText = if (viewModel.uiState.value.idNotUnique) stringResource(R.string.id_not_unique) else null,
                 )
                 OutlinedTextField(
-                    modifier = Modifier.focusTarget(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusTarget(),
                     readOnly = !isEnabled,
                     value = uiState.value.itemData?.nazev ?: "",
                     label = @Composable { Text(stringResource(R.string.name)) },
@@ -104,7 +110,9 @@ fun ItemDetailScreen(id: String, onBackClicked: () -> Unit) {
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
                 )
                 OutlinedTextField(
-                    modifier = Modifier.focusTarget(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusTarget(),
                     readOnly = !isEnabled,
                     value = uiState.value.itemData?.popis ?: "",
                     label = @Composable { Text(stringResource(R.string.description)) },
