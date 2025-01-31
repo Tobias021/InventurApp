@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -120,8 +121,9 @@ fun HomeScreen(onAddItem: () -> Unit, onEditItem: (String) -> Unit) {
                     )
                 }
 
-                if (uiState.value.items.isNotEmpty()) {
-                    LazyColumn {
+                LazyColumn {
+                    if (uiState.value.items.isNotEmpty()) {
+
                         item {
                             Spacer(Modifier.height(5.dp))
                         }
@@ -143,16 +145,21 @@ fun HomeScreen(onAddItem: () -> Unit, onEditItem: (String) -> Unit) {
                         item {
                             Spacer(modifier = Modifier.height(200.dp))
                         }
+                    } else if (uiState.value.isLoading && uiState.value.idFilter.isBlank()) {
+                        item {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally)
+                                    .padding(top = 100.dp)
+                            )
+                        }
+                    } else {
+                        item {
 
+                            NoItemsMessage { onAddItem() }
+
+                        }
                     }
-                } else if (uiState.value.isLoading && uiState.value.idFilter.isBlank()) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(top = 100.dp)
-                    )
-                } else {
-                    NoItemsMessage { onAddItem() }
                 }
             }
         }
@@ -235,8 +242,10 @@ fun snackbarOnDeleted(viewModel: HomeViewModel): suspend (count: Int) -> Snackba
 fun NoItemsMessage(onAddItem: () -> Unit) {
     Column(
         modifier = Modifier
-            .padding(top = 50.dp)
-            .padding(horizontal = 35.dp)
+            .fillMaxWidth()
+            .padding(top = 150.dp)
+            .padding(horizontal = 35.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(stringResource(R.string.no_items_message))
         Spacer(modifier = Modifier.height(10.dp))
