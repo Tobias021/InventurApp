@@ -52,7 +52,7 @@ fun NewItemScreen(
     val errorMessage = uiState.value.error
 
     val id = remember { mutableStateOf("") }
-    var name = remember{ mutableStateOf("") }
+    var name = remember { mutableStateOf("") }
     var description = remember { mutableStateOf("") }
 
     var showDatePicker = remember { mutableStateOf(false) }
@@ -110,6 +110,7 @@ fun NewItemScreen(
                     supportingText = nameSupportText(),
                     singleLine = true,
                     modifier = Modifier
+                        .fillMaxWidth()
                         .focusTarget()
                         .focusRequester(focusRequester)
                         .focusable(uiState.value.nameIsBlank)
@@ -120,7 +121,9 @@ fun NewItemScreen(
                     onValueChange = { description.value = it },
                     minLines = 3,
                     maxLines = 7,
-                    modifier = Modifier.focusTarget()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusTarget()
                 )
                 OutlinedTextField(
                     value = timestampToString(datePickerState.selectedDateMillis!!),
