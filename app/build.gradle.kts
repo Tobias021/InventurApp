@@ -1,3 +1,4 @@
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -28,6 +29,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            ndk{
+                debugSymbolLevel= "FULL"
+            }
         }
     }
     compileOptions {
@@ -40,6 +44,7 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
+
     }
 }
 
@@ -72,3 +77,4 @@ dependencies {
 kapt {
     correctErrorTypes = true
 }
+
