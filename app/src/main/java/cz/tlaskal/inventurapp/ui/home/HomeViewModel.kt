@@ -87,7 +87,7 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
         registerFilterColletor()
     }
 
-    private fun registerItemFilter(){
+    private fun registerItemFilter() {
         viewModelScope.launch {
             filterText
                 .debounce(700)
@@ -98,13 +98,10 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
                         itemProviderJob = provideAllItemsJob()
                     }
                 }
-            if(uiState.value.isLoading){
-                _uiState.update { it.copy(isLoading = false) }
-            }
         }
     }
 
-    private fun registerFilterColletor(){
+    private fun registerFilterColletor() {
         viewModelScope.launch {
             filterText.collectLatest {
                 val filterString = it
@@ -233,7 +230,7 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
             itemsRepository.getAllItemsStream().collect {
                 val items = it
                 _uiState.update {
-                    it.copy(items = items)
+                    it.copy(items = items, isLoading = false)
                 }
             }
         }
@@ -244,7 +241,7 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
             itemsRepository.searchItemById(id).collect {
                 val itemsFiltered = it
                 _uiState.update {
-                    it.copy(items = itemsFiltered)
+                    it.copy(items = itemsFiltered, isLoading = false)
                 }
             }
         }
