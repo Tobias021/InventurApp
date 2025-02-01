@@ -44,9 +44,12 @@ import cz.tlaskal.inventurapp.util.timestampToString
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
-fun ItemDetailScreen(id: String, onBackClicked: () -> Unit) {
+fun ItemDetailScreen(
+    id: String,
+    onBackClicked: () -> Unit,
+    viewModel: ItemDetailViewModel = viewModel(factory = ItemDetailViewModel.Factory(id))
+) {
 
-    val viewModel: ItemDetailViewModel = viewModel(factory = ItemDetailViewModel.Factory(id))
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val isEnabled: Boolean = uiState.value.editable
     val datePickerState = rememberDatePickerState(System.currentTimeMillis())
