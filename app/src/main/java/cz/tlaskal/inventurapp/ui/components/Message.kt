@@ -27,8 +27,24 @@ import cz.tlaskal.inventurapp.ui.theme.InventurAppTheme
  */
 
 @Composable
-fun Message(){
+fun Message(message: String?, background: Color, onClick: () -> Unit){
+    if (message != null) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(10.dp, 80.dp)
+                .background(background)
+                .clickable { onClick.invoke() }
 
+        ) {
+            Text(
+                text = message,
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 25.dp),
+//                color = MaterialTheme.colorScheme.secondary,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
 }
 
 
