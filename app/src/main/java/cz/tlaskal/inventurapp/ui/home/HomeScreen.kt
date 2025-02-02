@@ -52,13 +52,15 @@ import cz.tlaskal.inventurapp.ui.components.ScannerTextField
 import cz.tlaskal.inventurapp.ui.theme.InventurAppTheme
 
 @Composable
-fun HomeScreen(onAddItem: () -> Unit, onEditItem: (String) -> Unit) {
+fun HomeScreen(onAddItem: () -> Unit, onEditItem: (String) -> Unit, onCheckItems: () -> Unit) {
     val viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
 
     val hapticFeedback = LocalHapticFeedback.current
     val snackbarOnDeleted = snackbarOnDeleted(viewModel)
+    val noItemDeletedMessage = stringResource(R.string.no_items_deleted)
+
 
     BackHandler(uiState.value.idFilter.isNotBlank()) {
         viewModel.filterChanged("")
@@ -74,20 +76,31 @@ fun HomeScreen(onAddItem: () -> Unit, onEditItem: (String) -> Unit) {
                     barAction = uiState.value.actionState,
                     onActionSelectClicked = { viewModel.switchActionState(AppBarActionState.SELECT) },
                     onActionCloseSelectClicked = {
-//                        viewModel.switchActionState(AppBarActionState.DEFAULT),
-                        viewModel.seed()
+                        viewModel.switchActionState(AppBarActionState.HOME)
+//                        viewModel.seed()
                     },
                     onActionDeleteClicked = {
-                        viewModel.deleteSelectedItems(snackbarOnDeleted)
+                        if (uiState.value.selectedItems.count() > 0) {
+                            viewModel.deleteSelectedItems(snackbarOnDeleted)
+                        } else {
+                            viewModel.showShortSnack(noItemDeletedMessage)
+                        }
                     },
                     onActionDeleteHeld = {
                         hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                         viewModel.showDeleteDialog()
+                    },
+                    onActionCheckClicked = {
+                        onCheckItems()
                     }
                 )
             },
             floatingActionButton = @Composable {
-                FloatingActionButton(onClick = onAddItem) {
+                FloatingActionButton(
+                    onClick = onAddItem,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.background
+                ) {
                     Icon(Icons.Default.Add, stringResource(R.string.add_item))
                 }
 
@@ -219,8 +232,7 @@ fun snackbarOnDeleted(viewModel: HomeViewModel): suspend (count: Int) -> Snackba
     val snackStrings = SnackbarItemsDeletdStrings(
         stringResource(R.string.item_deleted),
         stringResource(R.string.few_items_deleted),
-        stringResource(R.string.many_items_deleted),
-        stringResource(R.string.no_items_deleted)
+        stringResource(R.string.many_items_deleted)
     )
     val actionLabel = stringResource(R.string.revert_deleted)
 
@@ -237,6 +249,7 @@ fun snackbarOnDeleted(viewModel: HomeViewModel): suspend (count: Int) -> Snackba
             )
     }
 }
+
 
 @Composable
 fun NoItemsMessage(onAddItem: () -> Unit) {

@@ -1,6 +1,7 @@
 package cz.tlaskal.inventurapp.ui.home
 
 import android.database.sqlite.SQLiteException
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.lifecycle.ViewModel
@@ -45,8 +46,6 @@ data class SnackbarItemsDeletdStrings(
     val one_deleted: String,
     val few_deleted: String,
     val many_deleted: String,
-    val none_deleted: String
-
 )
 
 @OptIn(FlowPreview::class)
@@ -214,7 +213,6 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
         val countString = count.toString()
 
         return when (count) {
-            0 -> strings.none_deleted
             1 -> countString + strings.one_deleted
             in 2..4 -> countString + strings.few_deleted
             else -> countString + strings.many_deleted
@@ -244,6 +242,16 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
                     it.copy(items = itemsFiltered, isLoading = false)
                 }
             }
+        }
+    }
+
+    fun showShortSnack(message: String) {
+        viewModelScope.launch {
+            SnackbarHostState.showSnackbar(
+                message = message,
+                withDismissAction = true,
+                duration = SnackbarDuration.Short
+            )
         }
     }
 }
