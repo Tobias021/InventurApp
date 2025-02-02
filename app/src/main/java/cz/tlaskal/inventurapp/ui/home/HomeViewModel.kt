@@ -168,7 +168,6 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
             }
         }
     }
-
     fun seed() {
         viewModelScope.launch {
             try {
