@@ -39,4 +39,12 @@
     <string name="id_filter">Filtr ID</string>
     <string name="name_is_blank">Název položky je prázdný</string>
     <string name="inventory_check">Inventura</string>
+    <string name="id_to_check">ID položky inventury</string>
+    <string name="begin_item_check">Spustit novou inventuru</string>
+    <string name="no_inventory_check_started">Aktuálně není spuštěná inventura položek.</string>
+    <string name="checked">Zkontrolováno:</string>
+    <string name="clear_inventory_check">Resetování inventury</string>
+    <string name="confirm_clear_all_checked_items">Skutečně si přejete vymazat stav inventury položek?\nTato akce je nevratná.</string>
+    <string name="item_checked">Položka zaznamenána do inventury</string>
+    <string name="item_not_checked">Položka nebyla nalezena nebo je již zaznamenána</string>
 </resources>
