@@ -33,15 +33,20 @@ fun Item(
     item: Item,
     isSelectable: Boolean = false,
     isSelected: Boolean = false,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
 ) {
     val itemName = item.nazev.limitLength(20)
     val itemDescription = item.popis.limitLength(80).endOnLineBreak()
+    val containerColor =
+        if (item.zkontrolovano)
+            MaterialTheme.colorScheme.tertiaryContainer
+        else
+            MaterialTheme.colorScheme.surfaceContainer
 
     Card(
         colors = CardDefaults
             .cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                containerColor = containerColor,
                 contentColor = MaterialTheme.colorScheme.secondary
             ),
         modifier = Modifier
