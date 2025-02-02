@@ -1,7 +1,6 @@
 package cz.tlaskal.inventurapp
 
-import android.os.Build
-import androidx.annotation.RequiresApi
+import android.graphics.drawable.Drawable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
@@ -16,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.sharp.ArrowBack
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,7 +54,7 @@ fun InventurApp(navController: NavHostController = rememberNavController()) {
 enum class AppBarActionState {
     HOME,
     DETAIL,
-    SEARCH,
+    CHECK,
     SELECT,
     NONE
 }
@@ -65,12 +66,13 @@ fun TopAppBar(
     showBack: Boolean? = null,
     barAction: AppBarActionState? = null,
     onBackClicked: (() -> Unit) = {},
-    onActionSearchClicked: (() -> Unit) = {},
+    onActionCheckClicked: (() -> Unit) = {},
     onActionSelectClicked: (() -> Unit) = {},
     onActionEditClicked: (()->Unit) = {},
     onActionCloseSelectClicked: (() -> Unit) = {},
     onActionDeleteClicked: (() -> Unit) = {},
-    onActionDeleteHeld: (() -> Unit) = {}
+    onActionDeleteHeld: (() -> Unit) = {},
+    onClearClicked: (() -> Unit) = {}
 ) {
     InventurAppTheme {
         CenterAlignedTopAppBar(
@@ -105,8 +107,8 @@ fun TopAppBar(
             },
             actions = {
                 when (barAction) {
-                    AppBarActionState.SEARCH -> {
-                        onActionSearchClicked
+                    AppBarActionState.CHECK -> {
+                        AppBarCheckAction(onClearClicked)
                     }
 
                     AppBarActionState.SELECT -> {
@@ -120,7 +122,7 @@ fun TopAppBar(
                     AppBarActionState.HOME -> {
                         AppBarHomeAction(
                             onActionSelectClicked,
-                            onActionSearchClicked
+                            onActionCheckClicked
                         )
                     }
 
@@ -164,7 +166,7 @@ fun AppBarHomeAction(onActionSelectClicked: (() -> Unit), onActionSearchClicked:
             Icon(Icons.Filled.Edit, stringResource(R.string.select_items))
         }
         IconButton(onActionSearchClicked) {
-            Icon(Icons.Filled.Search, stringResource(R.string.search_items))
+            Icon(painterResource(R.drawable.baseline_checklist_rtl_24), stringResource(R.string.inventory_check))
         }
     }
 }
@@ -200,6 +202,15 @@ fun AppBarDetailAction(onActionEditClicked: (() -> Unit)) {
     Row {
         IconButton(onClick = onActionEditClicked) {
             Icon(Icons.Filled.Edit, stringResource(R.string.select_items))
+        }
+    }
+}
+
+@Composable
+fun AppBarCheckAction(onClearClicked: (() -> Unit)){
+    Row {
+        IconButton(onClick = onClearClicked) {
+            Icon(Icons.Filled.Clear, stringResource(R.string.close))
         }
     }
 }
