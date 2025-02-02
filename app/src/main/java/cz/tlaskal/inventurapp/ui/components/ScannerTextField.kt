@@ -33,6 +33,9 @@ fun ScannerTextField(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     onValueChange: (TextFieldValue) -> Unit = {},
+    clearFocusOnDone: Boolean = true,
+    onDone: () -> Unit = {},
+    onBarcodeScanned: () -> Unit = {}
 ) {
     val showScannerState: MutableState<Boolean> = remember { mutableStateOf(false) }
 
@@ -53,6 +56,8 @@ fun ScannerTextField(
                 selection = TextRange(it.rawValue.toString().length)
             )
             onValueChange(result)
+            onBarcodeScanned()
+            onDone()
         }
         showScannerState.value = false
     }
@@ -78,7 +83,10 @@ fun ScannerTextField(
             supportingText = supportingText(),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    focusManager.clearFocus()
+                    if(clearFocusOnDone){
+                        focusManager.clearFocus()
+                    }
+                    onDone()
                 }
             ),
             enabled = enabled,
