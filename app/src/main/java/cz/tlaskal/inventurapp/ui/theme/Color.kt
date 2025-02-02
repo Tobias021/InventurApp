@@ -5,10 +5,13 @@ import androidx.compose.ui.graphics.Color
 val Orange80 = Color(0xFFE36D00)
 val OrangeGrey80 = Color(0xFFEDB880)
 val Brown80 = Color(0xFF513C00)
+val Green20 = Color(0xFF3E621E)
+
 
 val Orange40 = Color(0xFF7F4E00)
 val OrangeGrey40 = Color(0xFF392200)
 val Brown40 = Color(0xFFD7A880)
+val Green40 = Color(0xFF66A666)
 
 val Brown20 = Color(0xFF362316)
 
