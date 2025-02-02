@@ -35,6 +35,14 @@ class LocalItemsRepository(private val itemDao: ItemDao) : ItemsRepository {
         return itemDao.update(item)
     }
 
+    override suspend fun checkItem(id: String): Int {
+        return itemDao.checkItem(id)
+    }
+
+    override suspend fun uncheckAllItems() {
+        return itemDao.uncheckAllItems()
+    }
+
     override suspend fun nukeItems(){
         return itemDao.nukeItems()
     }
@@ -43,8 +51,12 @@ class LocalItemsRepository(private val itemDao: ItemDao) : ItemsRepository {
         return itemDao.searchItemById(id)
     }
 
-    override suspend fun getItemsCount(): Int {
+    override suspend fun getItemsCount(): Flow<Int> {
         return itemDao.getCount()
+    }
+
+    override suspend fun getCheckedItemsCount(): Flow<Int> {
+        return itemDao.getCheckedCount()
     }
 
 

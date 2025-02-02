@@ -42,5 +42,15 @@ interface ItemDao {
     fun nukeItems()
 
     @Query("SELECT count(*) FROM items")
-    fun getCount(): Int
+    fun getCount(): Flow<Int>
+
+    @Query("SELECT count(*) FROM items WHERE zkontrolovano = TRUE")
+    fun getCheckedCount(): Flow<Int>
+
+    @Query("UPDATE items SET zkontrolovano = true WHERE id = :id AND zkontrolovano = false")
+    suspend fun checkItem(id: String): Int
+
+    @Query("UPDATE items SET zkontrolovano = false WHERE zkontrolovano = TRUE")
+    suspend fun uncheckAllItems()
+
 }

@@ -12,7 +12,9 @@ interface ItemsRepository {
 
     fun getInactiveItems(): Flow<List<Item>>
 
-    suspend fun getItemsCount(): Int
+    suspend fun getItemsCount(): Flow<Int>
+
+    suspend fun getCheckedItemsCount(): Flow<Int>
 
     fun getItemStream(id: String): Flow<Item?>
 
@@ -21,6 +23,10 @@ interface ItemsRepository {
     suspend fun deleteItem(item: Item)
 
     suspend fun updateItem(item: Item)
+
+    suspend fun checkItem(id: String): Int
+
+    suspend fun uncheckAllItems()
 
     suspend fun nukeItems()
 
